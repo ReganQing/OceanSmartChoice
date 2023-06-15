@@ -1,28 +1,30 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="container">
+    <TopHeader/>
+    <!-- 路由组件出口的地方 -->
+    <router-view></router-view>
+    <BottomFooter v-show="$route.meta.show"/>
+    
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import TopHeader from "./components/TopHeader.vue";
+import BottomFooter from "./components/BottomFooter.vue";
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    TopHeader,
+    BottomFooter
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+/* 基础设置 */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
+
 </style>
