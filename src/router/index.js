@@ -37,7 +37,7 @@ VueRouter.prototype.replace = function (location, resolve, reject){
 // 使用插件
 Vue.use(VueRouter);
 
-// 配置路由
+// 配置路由器
 
 const router = new VueRouter({
     // 配置路由

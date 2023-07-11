@@ -1,5 +1,5 @@
 <template>
-    <div @mouseleave="leaveIndex">
+    <div @mouseleave="leaveIndex" @mouseenter="enterShowTypeNav">
         <!-- 主导航 -->
         <div class="main-nav">
             <ul class="menu clearfix">
@@ -20,37 +20,39 @@
         </div>
         <!-- 主要内容区 -->
         <!-- 三级联动 -->
-        <div class="main-content">
-            <div class="container clearfix">
-                <!-- 侧边导航 -->
-                <ul class="left-side-bar leftfix">
-                    <li v-for="(c1, index) in categoryList" :key="c1.categoryList" :class="{cur:currentIndex==index}" @click="goSearch">
-                        <!-- 一级菜单 -->
-                        <h3 @mouseenter="changeIndex(index)">
-                            <a :data-categoryName="c1.categoryName" :data-category1Id="c1.categoryId" href="#" @click="getIndex(c1.categoryName, index)">{{ c1.categoryName }}</a>
-                        </h3>
-                        <!-- 二级菜单 -->
-                        <!-- 二、三级分类 -->
-                        <div class="second-menu" :style="{display: currentIndex==index?'block':'none'}">
-                            <dl class="clearfix" v-for="(c2, index) in c1.categoryChild" :key="c2.categoryId">
-                                <dt>
-                                    <a :data-categoryName="c2.categoryName" :data-category1Id="c2.categoryId" href="#" @click="getIndex(c2.categoryName, index)"> {{ c2.categoryName }} </a>
-                                </dt>
-                                <dd>
-                                    <em v-for="(c3, index) in c2.categoryChild" :key="c3.categoryId">
-                                        <a :data-categoryName="c3.categoryName" :data-category1Id="c3.categoryId" href="#" @click="getIndex(c3.categoryName, index)"> 
-                                            {{ c3.categoryName }} 
-                                        </a>
-                                    </em>                                    
-                                </dd>
-                            </dl>
-                        </div>
-                    </li>
-                </ul>
-                <ListContainer />
-            </div>
+        <transition name="main-content">
+            <div class="main-content" v-show="showTypeNav">
+                <div class="container clearfix">
+                    <!-- 侧边导航 -->
+                    <ul class="left-side-bar leftfix">
+                        <li v-for="(c1, index) in categoryList" :key="c1.categoryList" :class="{cur:currentIndex==index}" @click="goSearch">
+                            <!-- 一级菜单 -->
+                            <h3 @mouseenter="changeIndex(index)">
+                                <a :data-categoryName="c1.categoryName" :data-category1Id="c1.categoryId" href="#" @click="getIndex(c1.categoryName, index)">{{ c1.categoryName }}</a>
+                            </h3>
+                            <!-- 二级菜单 -->
+                            <!-- 二、三级分类 -->
+                            <div class="second-menu" :style="{display: currentIndex==index?'block':'none'}">
+                                <dl class="clearfix" v-for="(c2, index) in c1.categoryChild" :key="c2.categoryId">
+                                    <dt>
+                                        <a :data-categoryName="c2.categoryName" :data-category1Id="c2.categoryId" href="#" @click="getIndex(c2.categoryName, index)"> {{ c2.categoryName }} </a>
+                                    </dt>
+                                    <dd>
+                                        <em v-for="(c3, index) in c2.categoryChild" :key="c3.categoryId">
+                                            <a :data-categoryName="c3.categoryName" :data-category1Id="c3.categoryId" href="#" @click="getIndex(c3.categoryName, index)"> 
+                                                {{ c3.categoryName }} 
+                                            </a>
+                                        </em>                                    
+                                    </dd>
+                                </dl>
+                            </div>
+                        </li>
+                    </ul>
+                    <ListContainer />
+                </div>
 
-        </div>
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -67,12 +69,14 @@ export default {
     data(){
         return {
             currentIndex: -1,
+            showTypeNav: true,
         }
     },
     // 组件挂载完毕，可以向服务器发送请求
     mounted(){
-        // 通知Vuex发送请求，获取数据，存储到仓库之中
-        this.$store.dispatch('categoryList');
+        if (this.$route.path !== "/home") {
+            this.showTypeNav = false;  // 不是home页面的情况，不显示TypeNav三级组件
+        }
     },
     computed: {
         ...mapState({
@@ -95,7 +99,15 @@ export default {
         }),
         // 鼠标移出修改相应式数据currentIndex属性-1
         leaveIndex(){
+            if (this.$route.path !== "/home") {
+                this.showTypeNav = false;
+            }
             this.currentIndex = -1;
+        },
+        enterShowTypeNav() {
+            if (this.$route.path !== "/home") {
+                this.showTypeNav = true; 
+            }
         },
         goSearch(event){
             // 最好的方法是：编程式导航 + 事件委派
@@ -116,9 +128,13 @@ export default {
                     query.category3Id = category3id;
                 }
                 // 整理完参数之后，传递给页面根目录的search请求页面
-                location.query = query;
-                // 路由跳转
-                this.$router.push(location);
+                // 第一种情况：如果路由跳转的时候，带有params参数，应捎带传递params参数
+                if (this.$route.params) {
+                    location.params = this.$route.params;
+                    location.query = query;
+                    // 路由跳转
+                    this.$router.push(location);
+                }
 
             }
 
@@ -158,6 +174,15 @@ export default {
     /* height: 458px; */
     margin-top: 10px;
 
+}
+.main-content-enter {
+    height: 0px;
+}
+.main-content-enter-to {
+    height: 478px;
+}
+.main-content-enter-active {
+    transition: all .3s linear;
 }
 
 .main-content .left-side-bar,

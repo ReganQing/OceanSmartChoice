@@ -50,7 +50,7 @@
 <script>
 export default {
     name: 'TopHeader',
-    data(){
+    data() {
         return {
             keyword: '',
         }
@@ -60,7 +60,14 @@ export default {
             // 路由传递参数
             // 字符串形式和模板字符串
             // 第三种，对象写法
-            this.$router.push({name:'search',params: {keyword:this.keyword},query: {k:this.keyword.toUpperCase()}})
+
+            // 第二种情况：如果路由跳转的时候，带有query参数，应捎带传递query参数
+            if (this.$route.query) {
+                let location = { name: 'search', params: { keyword: this.keyword || undefined } }
+                location.query = this.$route.query;
+                this.$router.push(location);
+                
+            }
         }
     }
 }
