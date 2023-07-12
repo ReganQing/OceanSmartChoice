@@ -17,7 +17,9 @@ Vue.config.productionTip = false
 
 // 引入仓库
 import store from '@/store'
-
+// 引入mockServer.js——mock数据
+import '@/mock/mockServer.js'
+import "swiper/css/bundle";
 // 测试
 import { reqCategoryList } from "@/api";
 reqCategoryList();
